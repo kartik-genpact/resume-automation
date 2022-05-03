@@ -5,6 +5,6 @@ nltk
 docx2txt
 plotly
 openpyxl
-pymongo
+pymongo[srv]
 docx2python
 xlsxwriter
