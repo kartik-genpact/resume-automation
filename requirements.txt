@@ -1,7 +1,6 @@
 streamlit
 nltk
 pandas
-os
 matplotlib.pyplot
 sys
 fitz
