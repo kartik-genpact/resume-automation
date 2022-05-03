@@ -1,6 +1,5 @@
-pip
+streamlit
 nltk
-string
 pandas
 os
 matplotlib.pyplot
