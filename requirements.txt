@@ -1,16 +1,10 @@
 streamlit
-nltk
 pandas
 matplotlib
-sys
-fitz
+nltk
 zipfile
 docx2txt
-streamlit
 plotly
-shutil
 openpyxl
 pymongo
-random
 docx2python
-dns
