@@ -240,6 +240,8 @@ class ResumeSummarizer():
 
     def get_experience_db(self, zip_file): #get the experience data table only
         st.success('...Done')
+        st.header("Experience")
+        st.write("Total Experience of each candidate:")
         self.unzip(zip_file)
         files = self.parse_single_file()
         col = ['Candidate_Name', 'Experience(yrs)']
@@ -263,8 +265,6 @@ class ResumeSummarizer():
     def get_just_experience_db(self, zip_file):
         self.unzip(zip_file)
         files = self.parse_single_file()
-        st.header("Experience")
-        st.write("Total Experience of each candidate:")
         col = ['Candidate_Name', 'Experience(yrs)']
         experience_db = pd.DataFrame(columns=col)
         name, exp = [], []
