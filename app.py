@@ -58,20 +58,20 @@ elif option=='Login':
         choice = st.radio("What's on your mind ?", ['New Summarization', 'Summarize from DB', 'View DB'])
         if choice=='New Summarization':
             zip_file = st.file_uploader('Upload the Resume ZIP file: ')
-            def generate_summary():
-                obj.get_experience_db(zip_file)
-                (obj.summarize(zip_file))
-                obj.mongodb_upload(zip_file)
-            if st.button('Start Analysis'):
-                st.info('Extracting and Processing the resumes...')
-                generate_summary()
-                st.header('Excel Report:')
-                st.write("Download a Report in Excel format, which comprises of all the detailed analysis and summary of each resume.")
-                with open("excel_report.xlsx", "rb") as file:
-                     btn = st.download_button(
-                         label="Download Excel Report",
-                         data=file,
-                         file_name="excel_report.xlsx")
+            # def generate_summary():
+            obj.get_experience_db(zip_file)
+            (obj.summarize(zip_file))
+            obj.mongodb_upload(zip_file)
+            # if st.button('Start Analysis'):
+            st.info('Extracting and Processing the resumes...')
+            # generate_summary()
+            st.header('Excel Report:')
+            st.write("Download a Report in Excel format, which comprises of all the detailed analysis and summary of each resume.")
+            with open("test/excel_report.xlsx", "rb") as file:
+                 btn = st.download_button(
+                     label="Download Excel Report",
+                     data=file,
+                     file_name="test/excel_report.xlsx")
         elif choice=='View DB':
             obj.mongodb_view()
         elif choice=='Summarize from DB':
