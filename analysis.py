@@ -606,17 +606,17 @@ class ResumeSummarizer():
             st.write('Filter Employees based on Skill and Years of experience')
             col1, col2 = st.columns([2, 1])
             primary_skill = str(col1.selectbox('Primary Skill:', skill_list))
-            ps_exp = (col2.number_input('Skill Experience', step = 0.5, value = 2.5))
+            ps_exp = (col2.number_input('Skill Experience', step = 0.5, value = 2.5, format="%.1f"))
             if ps_exp-int(ps_exp)==0:
                 ps_exp = int(ps_exp)
             secondary_skill = str(col1.selectbox('Secondary Skill:', skill_list))
-            ss_exp = (col2.number_input('Skill Experience ', step = 0.5, value=2.5))
+            ss_exp = (col2.number_input('Skill Experience ', step = 0.5, value=2.5, format="%.1f"))
             if ss_exp-int(ss_exp)==0:
                 ss_exp = int(ss_exp)
             location = str(col1.text_input('Base Location')).lower()
             site = str(col2.radio('Site: ', ['Onsite', 'Remote'])).lower()
             visa_status = str(col1.radio('Visa Status', ['Available', 'Unavailable']))
-            yrs_of_exp = (col2.number_input('Total Years of Experience:', step = 0.5, value = 2.5))
+            yrs_of_exp = (col2.number_input('Total Years of Experience:', step = 0.5, value = 2.5, format="%.1f"))
             if yrs_of_exp-int(yrs_of_exp)==0:
                 yrs_of_exp = int(yrs_of_exp)
             status = str(st.radio('Status:',['Selected-Extended', 'Proposed', 'Selected-New', 'Blocked', 'Unassigned', 'Unavailable - Resigned',
