@@ -1,7 +1,7 @@
 import streamlit as st
 import pymongo
 
-from a import obj
+from analysis import obj
 
 st.set_page_config(initial_sidebar_state='expanded',layout='wide')
 
