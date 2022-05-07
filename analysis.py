@@ -122,8 +122,8 @@ class ResumeSummarizer():
     def parse_single_file(self): #returns single files fron the zip folder
         files = []
         pwd = os.getcwd()
-        wd = pwd + '\output'
-        swd = wd+'\\'
+        wd = pwd + '/output'
+        swd = wd+'/'
         directories = os.listdir(wd)
         for file in directories:
             files.append(swd+file)
