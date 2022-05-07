@@ -239,8 +239,6 @@ class ResumeSummarizer():
         return d
 
     def get_experience_db(self, zip_file): #get the experience data table only
-        st.header("Experience")
-        st.write("Total experience of all employees")
         col = ['Candidate_Name', 'Experience(yrs)']
         experience_db = pd.DataFrame(columns=col)
         name, exp = [], []
@@ -249,6 +247,8 @@ class ResumeSummarizer():
         elif zip_file.name[-3:]=='zip':
             st.info('Extracting and Processing the resumes...')
             st.success('...Done')
+            st.header("Experience")
+            st.write("Total experience of all employees")
             self.unzip(zip_file)
             files = self.parse_single_file()
             for file in files:
@@ -264,10 +264,12 @@ class ResumeSummarizer():
                 s = s.set_index('Candidate_Name')
                 st.dataframe(s)
                 st.bar_chart(s)
-                return experience_db
+            return experience_db
         elif zip_file.name[-4:]=='docx':
             st.info('Extracting and Processing the resumes...')
             st.success('...Done')
+            st.header("Experience")
+            st.write("Total experience of all employees")
             u = self.get_info(zip_file)
             p = u['personal_info_df']
             name.append(p.loc[p[0] == 'Name', 1].item())
@@ -345,7 +347,7 @@ class ResumeSummarizer():
             skills.to_excel(writer, sheet_name='Skill vs employee', startrow=1, header=False, index=False)
             self.create_excel_table(skills, 'Skill vs employee')
             writer.save()
-            wb = load_workbook('test/excel_report.xlsx')
+            wb = load_workbook('excel_report.xlsx')
             charts = wb.create_sheet('charts', 0)
             active = wb['charts']
             new_skill = skills
@@ -403,7 +405,7 @@ class ResumeSummarizer():
             skills.to_excel(writer, sheet_name='Skill vs employee', startrow=1, header=False, index=False)
             self.create_excel_table(skills, 'Skill vs employee')
             writer.save()
-            wb = load_workbook('test/excel_report.xlsx')
+            wb = load_workbook('excel_report.xlsx')
             charts = wb.create_sheet('charts', 0)
             active = wb['charts']
             new_skill = skills
