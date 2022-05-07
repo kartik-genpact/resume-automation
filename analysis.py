@@ -256,14 +256,14 @@ class ResumeSummarizer():
                 p = u['personal_info_df']
                 name.append(p.loc[p[0] == 'Name', 1].item())
                 exp.append(p.loc[p[0] == 'Years of Experience', 1].item())
-                experience_db['Candidate_Name'] = (name)
-                experience_db['Experience(yrs)'] = (exp)
-                experience_db.to_excel(writer, sheet_name='Experience', startrow=1, header=False, index=False)
-                self.create_excel_table(experience_db, 'Experience')
-                s = experience_db
-                s = s.set_index('Candidate_Name')
-                st.dataframe(s)
-                st.bar_chart(s)
+            experience_db['Candidate_Name'] = (name)
+            experience_db['Experience(yrs)'] = (exp)
+            experience_db.to_excel(writer, sheet_name='Experience', startrow=1, header=False, index=False)
+            self.create_excel_table(experience_db, 'Experience')
+            s = experience_db
+            s = s.set_index('Candidate_Name')
+            st.dataframe(s)
+            st.bar_chart(s)
             return experience_db
         elif zip_file.name[-4:]=='docx':
             st.info('Extracting and Processing the resumes...')
