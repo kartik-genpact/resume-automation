@@ -1,24 +1,5 @@
-import nltk
-import string
-import pandas as pd
-from nltk import word_tokenize
-from nltk.corpus import stopwords
-import os
-import matplotlib.pyplot as plt
-# import sys, fitz
-from zipfile import ZipFile
-import docx2txt
 import streamlit as st
-import plotly.graph_objects as go
-# import shutil
-from openpyxl import load_workbook
-from openpyxl.drawing.image import Image
-import re
 import pymongo
-import random
-from docx2python import docx2python
-# import dns
-
 
 from analysis import obj
 
