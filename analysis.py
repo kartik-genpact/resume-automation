@@ -25,7 +25,7 @@ class ResumeSummarizer():
         nltk.download('stopwords')
         nltk.download('punkt')
         global writer
-        writer = pd.ExcelWriter("test/excel_report.xlsx", engine='xlsxwriter')
+        writer = pd.ExcelWriter("excel_report.xlsx", engine='xlsxwriter')
         pass
 
     # def pdf_to_text(self, file): # Converting PDF to text
