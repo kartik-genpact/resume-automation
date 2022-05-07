@@ -240,8 +240,9 @@ class ResumeSummarizer():
 
     def get_experience_db(self, zip_file): #get the experience data table only
         col = ['Candidate_Name', 'Experience(yrs)']
+        pd.options.display.float_format = '{:.2f}%'.format
         experience_db = pd.DataFrame(columns=col)
-        name, exp = [], []
+        name, exp, expe = [], [], []
         if zip_file==None:
             pass
         elif zip_file.name[-3:]=='zip':
@@ -256,14 +257,18 @@ class ResumeSummarizer():
                 p = u['personal_info_df']
                 name.append(p.loc[p[0] == 'Name', 1].item())
                 exp.append(p.loc[p[0] == 'Years of Experience', 1].item())
+                expe.append(str(p.loc[p[0] == 'Years of Experience', 1].item()))
             experience_db['Candidate_Name'] = (name)
             experience_db['Experience(yrs)'] = (exp)
             experience_db.to_excel(writer, sheet_name='Experience', startrow=1, header=False, index=False)
             self.create_excel_table(experience_db, 'Experience')
             s = experience_db
             s = s.set_index('Candidate_Name')
+            s['Experience(yrs)'] = expe
             st.dataframe(s)
-            st.bar_chart(s)
+            se = experience_db
+            se = se.set_index('Candidate_Name')
+            st.bar_chart(se)
             return experience_db
         elif zip_file.name[-4:]=='docx':
             st.info('Extracting and Processing the resumes...')
