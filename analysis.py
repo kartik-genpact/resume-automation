@@ -96,25 +96,6 @@ class ResumeSummarizer():
         except ValueError:
             return False
 
-    # def plot(self, final_db):
-    #     ax = final_db.plot.barh(title="Resume categorization by skills", legend=True, stacked=True)
-    #     labels = []
-    #     for j in final_db.columns:
-    #         for i in final_db.index:
-    #             label = str(j)+": " + str(final_db.loc[i][j])
-    #             labels.append(label)
-    #     patches = ax.patches
-    #     for label, rect in zip(labels, patches):
-    #         width = rect.get_width()
-    #         if width > 0:
-    #             x = rect.get_x()
-    #             y = rect.get_y()
-    #             height = rect.get_height()
-    #             ax.text(x + width/2., y + height/2., label, ha='center', va='center')
-    #     ax.figure.savefig('summary2.png')
-    #     plt.show()
-    #     #st.pyplot(ax)
-
     def unzip(self, files): #unzips the zip folder
         with ZipFile(files, 'r') as zipObj:
            zipObj.extractall('output')
@@ -144,79 +125,14 @@ class ResumeSummarizer():
         else:
             return False
 
-    # def get_experience(self, zip_file): #get the experience along with the UI and graphs
-    #     st.success('...Done!')
-    #     st.header("Experience ")
-    #     st.write('Total work experience of each employee')
-    #     self.unzip(zip_file)
-    #     files = self.parse_single_file()
-    #     col=['Candidate_Name', 'Experience(yrs)']
-    #     experience_db = pd.DataFrame(columns=col)
-    #     for file in files:
-    #         if (file[-3:] == 'pdf'):
-    #             text = self.pdf_to_text(file)
-    #         else:
-    #             text = self.docx_to_text(file)
-    #         text = re.sub('[^.a-zA-Z0-9]', ' ', text)
-    #         row = []
-    #         base = os.path.basename(file)
-    #         filename = os.path.splitext(base)[0]
-    #         if '_' in filename:
-    #             name = filename.split('_')
-    #         elif '-' in filename:
-    #             name = filename.split('-')
-    #         else:
-    #             name = filename.split(' ')
-    #         name2 = name[0]
-    #         row.append(name2)
-    #         k = (text.split())
-    #         count = 0
-    #         l = ['experience', 'experience.', 'Exp.', 'exp.', 'exp', 'Exp']
-    #         for i in range(len(l)):
-    #             if self.check(l[i], k):
-    #                 t = k.index(l[i])
-    #                 if t > 5:
-    #                     for i in range(t, t - 5, -1):
-    #                         if k[i].isnumeric() or self.isfloat(k[i]):
-    #                             if self.isfloat(k[i]):
-    #                                 row.append(float(k[i]))
-    #                                 count = 1
-    #                             else:
-    #                                 row.append(int(k[i]))
-    #                                 count = 1
-    #                 elif t<5:
-    #                     for i in range(t, t + 5):
-    #                         if k[i].isnumeric() or self.isfloat(k[i]):
-    #                             if self.isfloat(k[i]):
-    #                                 row.append(float(k[i]))
-    #                                 count = 1
-    #                             else:
-    #                                 row.append(int(k[i]))
-    #                                 count = 1
-    #         if count == 0:
-    #             row.append(0)
-    #         # print(row)
-    #         experience_db.loc[len(experience_db.index)] = row
-    #     global ex_db_v
-    #     ex_db_v = experience_db
-    #     ex_db_v = ex_db_v.set_index('Candidate_Name')
-    #     experience_db.to_excel(writer, sheet_name='Experience', startrow=1, header=False, index=False)
-    #     self.create_excel_table(experience_db, 'Experience')
-    #     # writer.save()
-    #     st.dataframe(ex_db_v)
-    #     st.bar_chart(ex_db_v)
-    #     return experience_db
-
-    #def get_location(self):
-
-    def flatten_df(self, df):
+    def flatten_df(self, df):  #Used to flatten multidimensional listed dataframes to a 1d dataframe
         db = df
         for i in range(len(df.columns)):
             for j in range(len(df[i])):
                 db[i][j] = df[i][j][0][0]
         return db
 
-    def get_info(self, file):
+    def get_info(self, file): #Used to get specified information from the resume using the docx2python library
         document = docx2python(file)
         d = dict()
         l = self.flatten_df(pd.DataFrame(document.body_runs[1]))
@@ -238,7 +154,7 @@ class ResumeSummarizer():
         d['link'] = str(document.body_runs[12][0][0][1][0])  #[9:-4]
         return d
 
-    def get_experience_db(self, zip_file): #get the experience data table only
+    def get_experience_db(self, zip_file): #get the experience data table along with all the UI formatting
         col = ['Candidate_Name', 'Experience(yrs)']
         pd.options.display.float_format = '{:.2f}%'.format
         experience_db = pd.DataFrame(columns=col)
@@ -289,7 +205,7 @@ class ResumeSummarizer():
             st.bar_chart(s)
             return experience_db
 
-    def get_just_experience_db(self, zip_file):
+    def get_just_experience_db(self, zip_file):  #get just the experience dataframe 
         self.unzip(zip_file)
         files = self.parse_single_file()
         col = ['Candidate_Name', 'Experience(yrs)']
@@ -304,7 +220,7 @@ class ResumeSummarizer():
         experience_db['Experience(yrs)'] = (exp)
         return experience_db
 
-    def summarize(self, zip_file): #summarization of everything
+    def summarize(self, zip_file): #get the summarization of the new resumes that are uploaded
         if zip_file==None:
             pass
         elif (zip_file.name)[-3:]=='zip':
@@ -449,37 +365,7 @@ class ResumeSummarizer():
         excel_db = pd.concat(excel_db)
         return excel_db
 
-    # def filter_current(self, zip_file): #filter the current uploaded data
-    #     experience = self.get_experience_db(zip_file)
-    #     skill = self.skill_db(zip_file)
-    #     skill['Experience'] = list(experience['Experience(yrs)'])
-    #     skill_2 = skill.drop('Candidate_Name', axis = 1)
-    #     skill_list = list(skill_2.columns)
-    #     st.header('Filter Employees')
-    #     st.write('Filter Employees based on Skill and Years of experience')
-    #     primary_skill = str(st.selectbox('Primary Skill:', skill_list))
-    #     secondary_skill = str(st.selectbox('Secondary Skill:', skill_list))
-    #     yrs_of_exp = int(st.slider('Years of Experience:', 1, 10, 2))
-    #     # filter_skill_db = skill.filter('@primary_skill>5')
-    #     filter_skill_db = skill[(skill[primary_skill]>2) & (skill[secondary_skill]>1)]
-    #     filter_skill_db = filter_skill_db[filter_skill_db['Experience']==yrs_of_exp]
-    #     if st.button("Filter"):
-    #         for i in list(filter_skill_db['Candidate_Name']):
-    #             st.subheader(i)
-
-    # def mongodb_upload_dataframe(self, df): #upload dataframe to mongodb
-    #     try:
-    #         client = pymongo.MongoClient(
-    #             "mongodb+srv://admin:pavilion15@cluster0.pefyq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-    #         db = client['ResumeData']
-    #         col = db['resumes']
-    #         dic = df.to_dict(orient='list')
-    #         col.insert_many([dic])
-    #         print('Uploaded to MongoDB successfully!')
-    #     except:
-    #         print("Upload failed!")
-
-    def mongodb_view(self): #view mongodb db
+    def mongodb_view(self): #view mongodb db and change status of employees 
         client = pymongo.MongoClient(
             "mongodb+srv://admin:pavilion15@cluster0.pefyq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
         db = client['ResumeData']
@@ -514,8 +400,7 @@ class ResumeSummarizer():
             if st.button('Update Status'):
                 col.update_one({'Name': n }, { "$set": { 'status': status } })
 
-    def mongodb_upload(self, zip_file):
-        #extract and upload data to db
+    def mongodb_upload(self, zip_file): # upload data to db
         client = pymongo.MongoClient(
             "mongodb+srv://admin:pavilion15@cluster0.pefyq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
         db = client['ResumeData']
@@ -666,35 +551,4 @@ class ResumeSummarizer():
                 ))
             st.plotly_chart(fig)
 
-obj = ResumeSummarizer()
-# obj.get_experience_db('Resumesnew.zip')
-# obj.mongodb_upload('Resumesnew.zip')
-
 # obj = ResumeSummarizer()
-# st.set_page_config(initial_sidebar_state='expanded',layout='wide')
-# st.sidebar.image('mainlogo.png')
-# st.image('mainlogo.png')
-# st.image(['tagline1.png', 'tagline2.png'] )
-# st.title("Internal Employee Detail Summarizer")
-# choice = st.sidebar.radio("What's on your mind ?", ['New Summarization', 'Summarize from DB', 'View DB'])
-# if choice=='New Summarization':
-#     global zip_file
-#     zip_file = st.sidebar.file_uploader('Upload the Resume ZIP file: ')
-#     def generate_summary():
-#         obj.get_experience_db(zip_file)
-#         (obj.summarize(zip_file))
-#         obj.mongodb_upload(zip_file)
-#     if st.sidebar.button('Start Analysis'):
-#         st.info('Extracting and Processing the resumes...')
-#         generate_summary()
-#         st.header('Excel Report:')
-#         st.write("Download a Report in Excel format, which comprises of all the detailed analysis and summary of each resume.")
-#         with open("excel_report.xlsx", "rb") as file:
-#              btn = st.download_button(
-#                  label="Download Excel Report",
-#                  data=file,
-#                  file_name="excel_report.xlsx")
-# elif choice=='View DB':
-#     obj.mongodb_view()
-# elif choice=='Summarize from DB':
-#     obj.mongodb_summarize()
