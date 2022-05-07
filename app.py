@@ -1,7 +1,7 @@
 import streamlit as st
 import pymongo
 
-from analysis import obj
+from a import obj
 
 st.set_page_config(initial_sidebar_state='expanded',layout='wide')
 
@@ -50,7 +50,7 @@ if option=='Add New User(Admin Only)':
     else:
         st.warning('Incorrect Admin Password')
 elif option=='Login':
-     if login():
+    if login():
         # st.sidebar.image('mainlogo.png')
         st.image('mainlogo.png')
         st.image(['tagline1.png', 'tagline2.png'] )
