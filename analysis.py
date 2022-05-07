@@ -602,4 +602,4 @@ obj = ResumeSummarizer()
 # elif choice=='View DB':
 #     obj.mongodb_view()
 # elif choice=='Summarize from DB':
-#     obj.mongodb_summarize()import nltk
+#     obj.mongodb_summarize()
