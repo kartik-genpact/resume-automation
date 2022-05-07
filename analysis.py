@@ -239,11 +239,16 @@ class ResumeSummarizer():
         return d
 
     def get_experience_db(self, zip_file): #get the experience data table only
-        st.success('...Done')
+        st.header("Experience")
+        st.write("Total experience of all employees")
         col = ['Candidate_Name', 'Experience(yrs)']
         experience_db = pd.DataFrame(columns=col)
         name, exp = [], []
-        if zip_file.name[-3:]=='zip':
+        if zip_file==None:
+            pass
+        elif zip_file.name[-3:]=='zip':
+            st.info('Extracting and Processing the resumes...')
+            st.success('...Done')
             self.unzip(zip_file)
             files = self.parse_single_file()
             for file in files:
@@ -251,20 +256,31 @@ class ResumeSummarizer():
                 p = u['personal_info_df']
                 name.append(p.loc[p[0] == 'Name', 1].item())
                 exp.append(p.loc[p[0] == 'Years of Experience', 1].item())
+                experience_db['Candidate_Name'] = (name)
+                experience_db['Experience(yrs)'] = (exp)
+                experience_db.to_excel(writer, sheet_name='Experience', startrow=1, header=False, index=False)
+                self.create_excel_table(experience_db, 'Experience')
+                s = experience_db
+                s = s.set_index('Candidate_Name')
+                st.dataframe(s)
+                st.bar_chart(s)
+                return experience_db
         elif zip_file.name[-4:]=='docx':
+            st.info('Extracting and Processing the resumes...')
+            st.success('...Done')
             u = self.get_info(zip_file)
             p = u['personal_info_df']
             name.append(p.loc[p[0] == 'Name', 1].item())
             exp.append(p.loc[p[0] == 'Years of Experience', 1].item())
-        experience_db['Candidate_Name']=(name)
-        experience_db['Experience(yrs)']=(exp)
-        experience_db.to_excel(writer, sheet_name='Experience', startrow=1, header=False, index=False)
-        self.create_excel_table(experience_db, 'Experience')
-        s = experience_db
-        s = s.set_index('Candidate_Name')
-        st.dataframe(s)
-        st.bar_chart(s)
-        return experience_db
+            experience_db['Candidate_Name'] = (name)
+            experience_db['Experience(yrs)'] = (exp)
+            experience_db.to_excel(writer, sheet_name='Experience', startrow=1, header=False, index=False)
+            self.create_excel_table(experience_db, 'Experience')
+            s = experience_db
+            s = s.set_index('Candidate_Name')
+            st.dataframe(s)
+            st.bar_chart(s)
+            return experience_db
 
     def get_just_experience_db(self, zip_file):
         self.unzip(zip_file)
@@ -282,7 +298,9 @@ class ResumeSummarizer():
         return experience_db
 
     def summarize(self, zip_file): #summarization of everything
-        if (zip_file.name)[-3:]=='zip':
+        if zip_file==None:
+            pass
+        elif (zip_file.name)[-3:]=='zip':
             self.unzip(zip_file)
             files = self.parse_single_file()
             dbs=[]
@@ -291,64 +309,116 @@ class ResumeSummarizer():
                 result = self.preprocess(text)
                 final_db = self.db_create(result, file)
                 dbs.append(final_db)
+            excel_db = dbs
+            dfs = [df.set_index('Candidate_Name') for df in dbs]
+            db = (pd.concat(dfs))
+            excel_db = pd.concat(excel_db)
+            excel_db.to_excel(writer, sheet_name='Skills', startrow=1, header=False, index=False)
+            self.create_excel_table(excel_db, 'Skills')
+            skills = pd.DataFrame(columns=['skill', 'count'])
+            skills['skill'] = db.columns.tolist()
+            count = []
+            for i in list(db):
+                k = db[i].tolist()
+                count.append(len([1 for i in k if i > 0]))
+            skills['count'] = count
+            # st.success('...Done!')
+            st.header("Tabular Representation of Skills ")
+            st.write("The score generated for each employee for the respective skill:")
+            st.dataframe(db)
+            st.header("Graphical Representation of Skills")
+            st.write("Easy to handpick employee according to a particular skill set: ")
+            st.bar_chart(db)
+            fig = go.Figure(
+                go.Pie(
+                    labels=skills['skill'],
+                    values=skills['count'],
+                    hoverinfo="label+percent",
+                    textinfo="value+label",
+                    hole=0.2
+                ))
+            # self.plot(db)
+            # st.image('summary.png')
+            st.header("Distribution of Employee Count by Skill")
+            st.write("No of employees having the particular skill :")
+            sv2 = skills
+            skills.to_excel(writer, sheet_name='Skill vs employee', startrow=1, header=False, index=False)
+            self.create_excel_table(skills, 'Skill vs employee')
+            writer.save()
+            wb = load_workbook('test/excel_report.xlsx')
+            charts = wb.create_sheet('charts', 0)
+            active = wb['charts']
+            new_skill = skills
+            new_skill = new_skill[~(new_skill == 0).any(axis=1)]
+            plot = new_skill.groupby(['skill']).sum().plot.pie(y='count', autopct='%1.0f%%', legend=False,
+                                                               title='Employee Count vs Skill')
+            plot.figure.savefig('summary.png')
+            plt.show()
+            active.add_image(Image('summary.png'), 'A1')
+            wb.save('excel_report.xlsx')
+            sv2 = sv2.set_index('skill')
+            st.dataframe(sv2)
+            st.plotly_chart(fig)
+            # shutil.rmtree(r'output')
+            return excel_db
         elif zip_file.name[-4:]=='docx':
             dbs = []
             text = self.docx_to_text(zip_file)
             result = self.preprocess(text)
             final_db = self.db_create(result, zip_file.name)
             dbs.append(final_db)
-        excel_db = dbs
-        dfs = [df.set_index('Candidate_Name') for df in dbs]
-        global db
-        db = (pd.concat(dfs))
-        excel_db = pd.concat(excel_db)
-        excel_db.to_excel(writer, sheet_name='Skills', startrow=1, header=False, index=False)
-        self.create_excel_table(excel_db, 'Skills')
-        skills = pd.DataFrame(columns=['skill', 'count'])
-        skills['skill'] = db.columns.tolist()
-        count = []
-        for i in list(db):
-            k = db[i].tolist()
-            count.append(len([1 for i in k if i > 0]))
-        skills['count'] = count
-        # st.success('...Done!')
-        st.header("Tabular Representation of Skills ")
-        st.write("The score generated for each employee for the respective skill:")
-        st.dataframe(db)
-        st.header("Graphical Representation of Skills")
-        st.write("Easy to handpick employee according to a particular skill set: ")
-        st.bar_chart(db)
-        fig = go.Figure(
-            go.Pie(
-                labels=skills['skill'],
-                values=skills['count'],
-                hoverinfo="label+percent",
-                textinfo="value+label",
-                hole = 0.2
-            ))
-        #self.plot(db)
-        #st.image('summary.png')
-        st.header("Distribution of Employee Count by Skill")
-        st.write("No of employees having the particular skill :")
-        sv2=skills
-        skills.to_excel(writer, sheet_name='Skill vs employee', startrow=1, header=False, index=False)
-        self.create_excel_table(skills, 'Skill vs employee')
-        writer.save()
-        wb = load_workbook('excel_report.xlsx')
-        charts = wb.create_sheet('charts', 0)
-        active = wb['charts']
-        new_skill = skills
-        new_skill = new_skill[~(new_skill == 0).any(axis=1)]
-        plot = new_skill.groupby(['skill']).sum().plot.pie(y='count', autopct='%1.0f%%', legend=False, title = 'Employee Count vs Skill')
-        plot.figure.savefig('summary.png')
-        plt.show()
-        active.add_image(Image('summary.png'), 'A1')
-        wb.save('excel_report.xlsx')
-        sv2 = sv2.set_index('skill')
-        st.dataframe(sv2)
-        st.plotly_chart(fig)
-        # shutil.rmtree(r'output')
-        return excel_db
+            excel_db = dbs
+            dfs = [df.set_index('Candidate_Name') for df in dbs]
+            db = (pd.concat(dfs))
+            excel_db = pd.concat(excel_db)
+            excel_db.to_excel(writer, sheet_name='Skills', startrow=1, header=False, index=False)
+            self.create_excel_table(excel_db, 'Skills')
+            skills = pd.DataFrame(columns=['skill', 'count'])
+            skills['skill'] = db.columns.tolist()
+            count = []
+            for i in list(db):
+                k = db[i].tolist()
+                count.append(len([1 for i in k if i > 0]))
+            skills['count'] = count
+            # st.success('...Done!')
+            st.header("Tabular Representation of Skills ")
+            st.write("The score generated for each employee for the respective skill:")
+            st.dataframe(db)
+            st.header("Graphical Representation of Skills")
+            st.write("Easy to handpick employee according to a particular skill set: ")
+            st.bar_chart(db)
+            fig = go.Figure(
+                go.Pie(
+                    labels=skills['skill'],
+                    values=skills['count'],
+                    hoverinfo="label+percent",
+                    textinfo="value+label",
+                    hole=0.2
+                ))
+            # self.plot(db)
+            # st.image('summary.png')
+            st.header("Distribution of Employee Count by Skill")
+            st.write("No of employees having the particular skill :")
+            sv2 = skills
+            skills.to_excel(writer, sheet_name='Skill vs employee', startrow=1, header=False, index=False)
+            self.create_excel_table(skills, 'Skill vs employee')
+            writer.save()
+            wb = load_workbook('test/excel_report.xlsx')
+            charts = wb.create_sheet('charts', 0)
+            active = wb['charts']
+            new_skill = skills
+            new_skill = new_skill[~(new_skill == 0).any(axis=1)]
+            plot = new_skill.groupby(['skill']).sum().plot.pie(y='count', autopct='%1.0f%%', legend=False,
+                                                               title='Employee Count vs Skill')
+            plot.figure.savefig('summary.png')
+            plt.show()
+            active.add_image(Image('summary.png'), 'A1')
+            wb.save('excel_report.xlsx')
+            sv2 = sv2.set_index('skill')
+            st.dataframe(sv2)
+            st.plotly_chart(fig)
+            # shutil.rmtree(r'output')
+            return excel_db
 
     def skill_db(self, zip_file): #return the skill db
         if zip_file.name[-3:]=='zip':
@@ -443,7 +513,9 @@ class ResumeSummarizer():
             "mongodb+srv://admin:pavilion15@cluster0.pefyq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
         db = client['ResumeData']
         col = db['resumes']
-        if zip_file.name[-3:]=='zip':
+        if zip_file==None:
+            pass
+        elif zip_file.name[-3:]=='zip':
             self.unzip(zip_file)
             files = self.parse_single_file()
             for file in files:
@@ -465,6 +537,14 @@ class ResumeSummarizer():
                 view = col.find_one({'OHR ID': p[1][1]})
                 if view == None:
                     col.insert_one(dic_list)
+            st.header('Excel Report:')
+            st.write(
+                "Download a Report in Excel format, which comprises of all the detailed analysis and summary of each resume.")
+            with open("test/excel_report.xlsx", "rb") as file:
+                btn = st.download_button(
+                    label="Download Excel Report",
+                    data=file,
+                    file_name="test/excel_report.xlsx")
         elif zip_file.name[-4:]=='docx':
             u = (self.get_info(zip_file))
             p = pd.concat([u['personal_info_df'], u['skills_df'], u['education_df'], u['visa_df']])
@@ -484,6 +564,14 @@ class ResumeSummarizer():
             view = col.find_one({'OHR ID': p[1][1]})
             if view == None:
                 col.insert_one(dic_list)
+            st.header('Excel Report:')
+            st.write(
+                "Download a Report in Excel format, which comprises of all the detailed analysis and summary of each resume.")
+            with open("test/excel_report.xlsx", "rb") as file:
+                btn = st.download_button(
+                    label="Download Excel Report",
+                    data=file,
+                    file_name="test/excel_report.xlsx")
 
     def mongodb_allskills(self): #gets all the skills from database
         client = pymongo.MongoClient(
