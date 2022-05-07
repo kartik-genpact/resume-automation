@@ -551,4 +551,4 @@ class ResumeSummarizer():
                 ))
             st.plotly_chart(fig)
 
-# obj = ResumeSummarizer()
+obj = ResumeSummarizer()
